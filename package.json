@@ -1,0 +1,19 @@
+{
+  "name": "sri-veda-multi-specialty-hospital",
+  "version": "1.0.0",
+  "description": "Sri Veda Multi Specialty Hospital Web Portal built with HTML, CSS, JavaScript, and React.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "hospital",
+    "portal",
+    "react",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "Sri Veda Hospital IT Care",
+  "license": "MIT"
+}
