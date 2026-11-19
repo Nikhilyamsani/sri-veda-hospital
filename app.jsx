@@ -1,0 +1,1464 @@
+/* ==========================================================================
+   Sri Veda Multi Specialty Hospital - React Application
+   Simple, clean, and modular React Code
+   ========================================================================== */
+
+const { useState, useEffect, useMemo } = React;
+
+// 1. Hospital Departments Data
+const DEPARTMENTS = [
+  {
+    id: "cardio",
+    name: "Cardiology & Heart Care",
+    icon: "❤️",
+    desc: "Comprehensive heart care including 24/7 cath lab, angiograms, angioplasty, and pacemaker implants.",
+    keyServices: ["24x7 Cath Lab", "Echocardiography", "Preventive Heart Checkup", "Bypass Surgery"]
+  },
+  {
+    id: "neuro",
+    name: "Neurology & Neurosurgery",
+    icon: "🧠",
+    desc: "Advanced treatment for stroke, epilepsy, spine surgery, brain tumors, and chronic migraines.",
+    keyServices: ["Stroke Ready Unit", "Spine Micro-surgery", "Neuro ICU", "Sleep Study Lab"]
+  },
+  {
+    id: "ortho",
+    name: "Orthopedics & Joint Replacement",
+    icon: "🦴",
+    desc: "Total knee and hip replacement, arthroscopic sports injury surgery, and trauma fracture care.",
+    keyServices: ["Robotic Knee Replacement", "Fracture Clinic", "Arthroscopy", "Physiotherapy"]
+  },
+  {
+    id: "pediatrics",
+    name: "Pediatrics & Neonatology",
+    icon: "👶",
+    desc: "Dedicated child specialists, Level-III NICU care for newborns, immunizations, and pediatric surgery.",
+    keyServices: ["Level-III NICU", "Child Vaccinations", "Pediatric ICU", "Developmental Clinic"]
+  },
+  {
+    id: "obg",
+    name: "Obstetrics & Gynecology",
+    icon: "🌸",
+    desc: "Compassionate maternal care, high-risk pregnancy monitoring, painless delivery, and laparoscopic surgery.",
+    keyServices: ["Painless Normal Delivery", "Laparoscopic Surgeries", "Fertility Clinic", "Well-Woman Screening"]
+  },
+  {
+    id: "onco",
+    name: "Oncology (Cancer Care)",
+    icon: "🎗️",
+    desc: "Multidisciplinary cancer center offering targeted chemotherapy, surgical oncology, and screening.",
+    keyServices: ["Chemotherapy Daycare", "Tumor Board Consult", "Cancer Screening", "Palliative Care"]
+  },
+  {
+    id: "nephro",
+    name: "Nephrology & Dialysis",
+    icon: "🩺",
+    desc: "Modern dialysis center, chronic kidney disease management, and kidney stone treatments.",
+    keyServices: ["24x7 Dialysis Unit", "Kidney Biopsy", "Hypertension Clinic", "Stone Removal"]
+  },
+  {
+    id: "genmed",
+    name: "General Medicine & Diabetology",
+    icon: "💊",
+    desc: "Holistic care for infectious diseases, diabetes, high blood pressure, and annual full body health checks.",
+    keyServices: ["Diabetic Foot Clinic", "Lifestyle Counseling", "Fever Clinic", "Executive Health Check"]
+  }
+];
+
+// 2. Doctors Directory Data
+const DOCTORS = [
+  {
+    id: 1,
+    name: "Dr. R. K. Varma",
+    deptId: "cardio",
+    deptName: "Cardiology",
+    degree: "MBBS, MD, DM (Cardiology)",
+    experience: "18+ Years",
+    timings: "Mon - Fri, 10:00 AM - 02:00 PM",
+    fee: "₹700"
+  },
+  {
+    id: 2,
+    name: "Dr. Priya Sundaram",
+    deptId: "neuro",
+    deptName: "Neurology",
+    degree: "MBBS, MS, MCh (Neurosurgery)",
+    experience: "14+ Years",
+    timings: "Tue - Sat, 11:00 AM - 04:00 PM",
+    fee: "₹800"
+  },
+  {
+    id: 3,
+    name: "Dr. Arvind Swaminathan",
+    deptId: "ortho",
+    deptName: "Orthopedics",
+    degree: "MBBS, MS (Orthopedics), DNB",
+    experience: "16+ Years",
+    timings: "Mon - Sat, 09:30 AM - 01:30 PM",
+    fee: "₹650"
+  },
+  {
+    id: 4,
+    name: "Dr. Sneha Reddy",
+    deptId: "pediatrics",
+    deptName: "Pediatrics",
+    degree: "MBBS, MD (Pediatrics), FIAP",
+    experience: "12+ Years",
+    timings: "Mon - Sat, 10:00 AM - 03:00 PM",
+    fee: "₹500"
+  },
+  {
+    id: 5,
+    name: "Dr. Meenakshi Iyer",
+    deptId: "obg",
+    deptName: "Obstetrics & Gynecology",
+    degree: "MBBS, MS (OBG), FMAS",
+    experience: "15+ Years",
+    timings: "Mon - Fri, 11:30 AM - 03:30 PM",
+    fee: "₹600"
+  },
+  {
+    id: 6,
+    name: "Dr. Harish Chandra",
+    deptId: "onco",
+    deptName: "Oncology",
+    degree: "MBBS, MD, DM (Medical Oncology)",
+    experience: "20+ Years",
+    timings: "Mon - Thu, 02:00 PM - 06:00 PM",
+    fee: "₹900"
+  },
+  {
+    id: 7,
+    name: "Dr. Ananya Mukherjee",
+    deptId: "nephro",
+    deptName: "Nephrology",
+    degree: "MBBS, MD, DM (Nephrology)",
+    experience: "11+ Years",
+    timings: "Wed - Sun, 10:00 AM - 02:00 PM",
+    fee: "₹700"
+  },
+  {
+    id: 8,
+    name: "Dr. K. Venkatesh",
+    deptId: "genmed",
+    deptName: "General Medicine",
+    degree: "MBBS, MD (General Medicine)",
+    experience: "22+ Years",
+    timings: "Daily, 09:00 AM - 01:00 PM & 05:00 PM - 08:00 PM",
+    fee: "₹500"
+  }
+];
+
+// Sample Initial Appointments
+const DEFAULT_APPOINTMENTS = [
+  {
+    id: "SVEDA-1082",
+    patientName: "Rajesh Kumar",
+    phone: "+91 98765 43210",
+    deptName: "Cardiology & Heart Care",
+    doctorName: "Dr. R. K. Varma",
+    date: "2026-11-21",
+    time: "10:30 AM",
+    status: "Confirmed"
+  },
+  {
+    id: "SVEDA-1083",
+    patientName: "Sunita Sharma",
+    phone: "+91 98450 11223",
+    deptName: "Pediatrics & Neonatology",
+    doctorName: "Dr. Sneha Reddy",
+    date: "2026-11-22",
+    time: "11:30 AM",
+    status: "Confirmed"
+  }
+];
+
+// Sample Diagnostic Lab Reports
+const LAB_REPORTS = [
+  {
+    id: "REP-4091",
+    testName: "Complete Blood Count (CBC) with ESR",
+    patientName: "Rajesh Kumar",
+    date: "18 Nov 2026",
+    status: "Ready",
+    findings: [
+      { param: "Hemoglobin (Hb)", val: "14.2 g/dL", normal: "13.0 - 17.0 g/dL" },
+      { param: "Total WBC Count", val: "6,800 /mcL", normal: "4,000 - 11,000 /mcL" },
+      { param: "Platelet Count", val: "2.45 Lakhs/mcL", normal: "1.50 - 4.50 Lakhs/mcL" },
+      { param: "ESR (1st Hour)", val: "9 mm/hr", normal: "0 - 15 mm/hr" }
+    ],
+    doctorRemark: "Normal hematological parameters. No acute infection noted."
+  },
+  {
+    id: "REP-4092",
+    testName: "Lipid Profile & Fasting Blood Sugar",
+    patientName: "Sunita Sharma",
+    date: "17 Nov 2026",
+    status: "Ready",
+    findings: [
+      { param: "Fasting Blood Sugar", val: "94 mg/dL", normal: "70 - 100 mg/dL" },
+      { param: "Total Cholesterol", val: "178 mg/dL", normal: "< 200 mg/dL" },
+      { param: "Triglycerides", val: "135 mg/dL", normal: "< 150 mg/dL" },
+      { param: "HDL (Good Cholesterol)", val: "52 mg/dL", normal: "> 45 mg/dL" }
+    ],
+    doctorRemark: "Blood sugar and lipid levels are well maintained within normal limits."
+  },
+  {
+    id: "REP-4093",
+    testName: "12-Lead Digital ECG & 2D Echo",
+    patientName: "K. Narayana",
+    date: "18 Nov 2026",
+    status: "Ready",
+    findings: [
+      { param: "Heart Rhythm", val: "Normal Sinus Rhythm", normal: "Sinus Rhythm" },
+      { param: "Heart Rate", val: "72 bpm", normal: "60 - 100 bpm" },
+      { param: "Left Ventricle EF (LVEF)", val: "62%", normal: "55% - 70%" },
+      { param: "Valvular Function", val: "Normal, No Regurgitation", normal: "Normal" }
+    ],
+    doctorRemark: "Cardiac systolic function is well preserved. No evidence of ischemia."
+  },
+  {
+    id: "REP-4094",
+    testName: "MRI Spine & Neurological Screen",
+    patientName: "Anita Rao",
+    date: "19 Nov 2026",
+    status: "Processing",
+    findings: [],
+    doctorRemark: "Scan completed; currently under review by Senior Radiologist."
+  }
+];
+
+// Live Bed Tracking Data
+const BED_DATA = [
+  { name: "ICU & Critical Care Units", total: 45, occupied: 36, color: "#e11d48" },
+  { name: "Emergency & Trauma Resuscitation", total: 20, occupied: 13, color: "#f59e0b" },
+  { name: "Deluxe & Single Private Rooms", total: 60, occupied: 41, color: "#0d9488" },
+  { name: "General & Semi-Private Wards", total: 200, occupied: 158, color: "#0284c7" }
+];
+
+// ==========================================================================
+// Main Application Component
+// ==========================================================================
+function HospitalApp() {
+  const [activeTab, setActiveTab] = useState("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Appointments State
+  const [appointments, setAppointments] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sri_veda_appointments");
+      return saved ? JSON.parse(saved) : DEFAULT_APPOINTMENTS;
+    } catch (e) {
+      return DEFAULT_APPOINTMENTS;
+    }
+  });
+
+  // Doctor Filter States
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState("all");
+  const [doctorSearch, setDoctorSearch] = useState("");
+
+  // Appointment Form State
+  const [bookingDept, setBookingDept] = useState("");
+  const [bookingDoctor, setBookingDoctor] = useState("");
+  const [patientName, setPatientName] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
+  const [patientEmail, setPatientEmail] = useState("");
+  const [patientAge, setPatientAge] = useState("");
+  const [patientGender, setPatientGender] = useState("Male");
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("10:00 AM");
+  const [symptoms, setSymptoms] = useState("");
+
+  // Modals
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [sosModalOpen, setSosModalOpen] = useState(false);
+  const [sosDispatched, setSosDispatched] = useState(false);
+  const [sosAddress, setSosAddress] = useState("");
+  const [sosContact, setSosContact] = useState("");
+
+  // Selected Lab Report for Modal
+  const [activeReport, setActiveReport] = useState(null);
+
+  // Portal Subtab: 'appointments', 'reports', 'beds'
+  const [portalSubtab, setPortalSubtab] = useState("appointments");
+
+  // Save to LocalStorage whenever appointments change
+  useEffect(() => {
+    try {
+      localStorage.setItem("sri_veda_appointments", JSON.stringify(appointments));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [appointments]);
+
+  // Handle specialty click to auto-fill booking form and jump to book tab
+  const handleSelectSpecialtyToBook = (deptId) => {
+    setBookingDept(deptId);
+    const firstDoc = DOCTORS.find(d => d.deptId === deptId);
+    if (firstDoc) {
+      setBookingDoctor(firstDoc.name);
+    } else {
+      setBookingDoctor("");
+    }
+    setActiveTab("book");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle doctor direct book click
+  const handleSelectDoctorToBook = (doc) => {
+    setBookingDept(doc.deptId);
+    setBookingDoctor(doc.name);
+    setActiveTab("book");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Filter Doctors for directory
+  const filteredDoctors = useMemo(() => {
+    return DOCTORS.filter(doc => {
+      const matchDept = selectedDeptFilter === "all" || doc.deptId === selectedDeptFilter;
+      const matchSearch = doc.name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+                          doc.deptName.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+                          doc.degree.toLowerCase().includes(doctorSearch.toLowerCase());
+      return matchDept && matchSearch;
+    });
+  }, [selectedDeptFilter, doctorSearch]);
+
+  // Doctors available for currently selected department in the booking form
+  const availableDoctorsForBooking = useMemo(() => {
+    if (!bookingDept) return DOCTORS;
+    return DOCTORS.filter(d => d.deptId === bookingDept);
+  }, [bookingDept]);
+
+  // Submit Appointment Form
+  const handleBookingSubmit = (e) => {
+    e.preventDefault();
+
+    if (!patientName || !patientPhone || !bookingDept || !bookingDoctor || !bookingDate) {
+      alert("Please fill in all the required fields.");
+      return;
+    }
+
+    const deptObj = DEPARTMENTS.find(d => d.id === bookingDept);
+    const newAppointment = {
+      id: "SVEDA-" + Math.floor(1000 + Math.random() * 9000),
+      patientName,
+      patientPhone,
+      patientEmail,
+      patientAge,
+      patientGender,
+      deptName: deptObj ? deptObj.name : "Multi Specialty",
+      doctorName: bookingDoctor,
+      date: bookingDate,
+      time: bookingTime,
+      symptoms,
+      status: "Confirmed"
+    };
+
+    setAppointments(prev => [newAppointment, ...prev]);
+    setConfirmedBooking(newAppointment);
+
+    // Reset Form
+    setPatientName("");
+    setPatientPhone("");
+    setPatientEmail("");
+    setPatientAge("");
+    setSymptoms("");
+  };
+
+  // Cancel Appointment
+  const handleCancelAppointment = (id) => {
+    if (confirm("Are you sure you want to cancel this appointment?")) {
+      setAppointments(prev => prev.map(app => {
+        if (app.id === id) {
+          return { ...app, status: "Cancelled" };
+        }
+        return app;
+      }));
+    }
+  };
+
+  // Request Ambulance SOS
+  const handleSosSubmit = (e) => {
+    e.preventDefault();
+    if (!sosAddress || !sosContact) {
+      alert("Please enter pickup address and contact number.");
+      return;
+    }
+    setSosDispatched(true);
+  };
+
+  return (
+    <div className="hospital-portal">
+      {/* 1. Top Emergency Bar */}
+      <div className="emergency-top-bar">
+        <div className="container">
+          <div className="emergency-info">
+            <span><span className="emergency-pulse"></span> 24x7 Emergency & Trauma Care</span>
+            <span>📞 Helpline: <strong>+91 40 2345 6789 / 108</strong></span>
+            <span>📍 Road No. 12, Banjara Hills, Hyderabad</span>
+          </div>
+          <div>
+            <button className="sos-btn" onClick={() => { setSosModalOpen(true); setSosDispatched(false); }}>
+              🚨 Request 24x7 Ambulance
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Main Navigation Bar */}
+      <header className="header-nav">
+        <div className="container navbar">
+          <div className="hospital-brand" onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+            <div className="brand-icon">⚕️</div>
+            <div className="brand-text">
+              <h1>Sri Veda</h1>
+              <span>Multi Specialty Hospital</span>
+            </div>
+          </div>
+
+          {/* Desktop Nav */}
+          <ul className={`nav-links ${mobileMenuOpen ? "mobile-nav-open" : ""}`}>
+            <li>
+              <button 
+                className={`nav-btn ${activeTab === "home" ? "active" : ""}`}
+                onClick={() => { setActiveTab("home"); setMobileMenuOpen(false); }}
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <button 
+                className={`nav-btn ${activeTab === "specialties" ? "active" : ""}`}
+                onClick={() => { setActiveTab("specialties"); setMobileMenuOpen(false); }}
+              >
+                Specialties
+              </button>
+            </li>
+            <li>
+              <button 
+                className={`nav-btn ${activeTab === "doctors" ? "active" : ""}`}
+                onClick={() => { setActiveTab("doctors"); setMobileMenuOpen(false); }}
+              >
+                Doctors
+              </button>
+            </li>
+            <li>
+              <button 
+                className={`nav-btn ${activeTab === "portal" ? "active" : ""}`}
+                onClick={() => { setActiveTab("portal"); setMobileMenuOpen(false); }}
+              >
+                Patient Portal ({appointments.length})
+              </button>
+            </li>
+            <li>
+              <button 
+                className="nav-cta"
+                onClick={() => { setActiveTab("book"); setMobileMenuOpen(false); }}
+              >
+                📅 Book Appointment
+              </button>
+            </li>
+          </ul>
+
+          <button className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
+      </header>
+
+      {/* 3. Dynamic Views based on activeTab */}
+      {activeTab === "home" && (
+        <React.Fragment>
+          {/* Hero Section */}
+          <section className="hero-section">
+            <div className="container hero-grid">
+              <div className="hero-content">
+                <div className="hero-badge">
+                  <span>★</span> NABH & JCI Accredited Super Specialty Healthcare
+                </div>
+                <h1 className="hero-title">
+                  Compassionate Care, <span>Advanced Medicine.</span>
+                </h1>
+                <p className="hero-subtitle">
+                  Sri Veda Multi Specialty Hospital provides holistic, 24x7 healthcare services 
+                  with world-class doctors, modern robotic technology, and caring staff dedicated 
+                  to your health and rapid recovery.
+                </p>
+                <div className="hero-actions">
+                  <button className="btn-primary" onClick={() => setActiveTab("book")}>
+                    📅 Book Doctor Appointment
+                  </button>
+                  <button className="btn-secondary" onClick={() => setActiveTab("doctors")}>
+                    👨‍⚕️ View Our Specialists
+                  </button>
+                </div>
+                <div className="hero-features">
+                  <div className="feature-pill"><span>✓</span> 24x7 Critical Care</div>
+                  <div className="feature-pill"><span>✓</span> 100% Cashless TPA Insurance</div>
+                  <div className="feature-pill"><span>✓</span> Modern Cath Lab & NICU</div>
+                </div>
+              </div>
+
+              {/* Hero Right Card: Live Hospital Highlights */}
+              <div className="hero-card">
+                <div className="hero-card-header">
+                  <div className="card-icon">🏥</div>
+                  <div>
+                    <h3 style={{ fontSize: "1.2rem", fontWeight: "800" }}>Hospital At A Glance</h3>
+                    <p style={{ fontSize: "0.85rem", color: "var(--gray-medium)" }}>Live Status & Quick Access</p>
+                  </div>
+                </div>
+                <div className="quick-stats-list">
+                  <div className="quick-stat-item">
+                    <span>Emergency & Trauma</span>
+                    <span className="stat-tag" style={{ background: "#dcfce7", color: "#166534" }}>Active 24x7</span>
+                  </div>
+                  <div className="quick-stat-item">
+                    <span>Diagnostic Lab & MRI</span>
+                    <span className="stat-tag" style={{ background: "#e0f2fe", color: "#0369a1" }}>Open Now</span>
+                  </div>
+                  <div className="quick-stat-item">
+                    <span>24x7 In-House Pharmacy</span>
+                    <span className="stat-tag" style={{ background: "#fef3c7", color: "#b45309" }}>Fully Stocked</span>
+                  </div>
+                  <div className="quick-stat-item">
+                    <span>Available Doctors Today</span>
+                    <span className="stat-tag" style={{ background: "#f3e8ff", color: "#7e22ce" }}>38 On Duty</span>
+                  </div>
+                </div>
+                <button 
+                  className="btn-book-doc" 
+                  style={{ width: "100%", marginTop: "1.25rem", padding: "0.75rem", fontSize: "0.95rem" }}
+                  onClick={() => { setActiveTab("portal"); setPortalSubtab("beds"); }}
+                >
+                  📊 View Live Bed Availability & Tracker
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Key Metrics Bar */}
+          <section className="metrics-section">
+            <div className="container metrics-grid">
+              <div className="metric-card">
+                <div className="metric-number">25+</div>
+                <div className="metric-label">Years of Clinical Excellence</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-number">120+</div>
+                <div className="metric-label">Senior Specialist Doctors</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-number">500+</div>
+                <div className="metric-label">Hospital Beds & Modern ICUs</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-number">2.5L+</div>
+                <div className="metric-label">Satisfied Patients Treated</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Clinical Specialties Showcase */}
+          <section className="specialties-section">
+            <div className="container">
+              <div className="section-header">
+                <span className="section-tag">Centres of Excellence</span>
+                <h2 className="section-title">Comprehensive Medical Specialties</h2>
+                <p className="section-subtitle">
+                  Our specialized departments are equipped with state-of-the-art diagnostic and surgical equipment.
+                </p>
+              </div>
+
+              <div className="specialties-grid">
+                {DEPARTMENTS.slice(0, 6).map(dept => (
+                  <div key={dept.id} className="specialty-card">
+                    <div className="specialty-icon">{dept.icon}</div>
+                    <h3 className="specialty-name">{dept.name}</h3>
+                    <p className="specialty-desc">{dept.desc}</p>
+                    <button 
+                      className="specialty-btn"
+                      onClick={() => handleSelectSpecialtyToBook(dept.id)}
+                    >
+                      Book Consultation &rarr;
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+                <button className="btn-secondary" onClick={() => setActiveTab("specialties")}>
+                  View All Departments &rarr;
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Doctors Preview */}
+          <section className="doctors-section">
+            <div className="container">
+              <div className="section-header">
+                <span className="section-tag">Qualified Medical Team</span>
+                <h2 className="section-title">Meet Our Leading Specialists</h2>
+                <p className="section-subtitle">
+                  Experienced clinicians dedicated to delivering accurate diagnoses and personalized patient care.
+                </p>
+              </div>
+
+              <div className="doctors-grid">
+                {DOCTORS.slice(0, 4).map(doc => (
+                  <div key={doc.id} className="doctor-card">
+                    <div className="doctor-header">
+                      <div className="doctor-avatar">👨‍⚕️</div>
+                      <div className="doctor-info">
+                        <h4>{doc.name}</h4>
+                        <span className="doctor-dept-badge">{doc.deptName}</span>
+                      </div>
+                    </div>
+                    <div className="doctor-meta">
+                      <div className="doctor-meta-item">🎓 {doc.degree}</div>
+                      <div className="doctor-meta-item">⏳ Experience: {doc.experience}</div>
+                      <div className="doctor-meta-item">🕒 OPD: {doc.timings}</div>
+                    </div>
+                    <div className="doctor-footer">
+                      <div className="doctor-fee">
+                        Fee: <strong>{doc.fee}</strong>
+                      </div>
+                      <button 
+                        className="btn-book-doc"
+                        onClick={() => handleSelectDoctorToBook(doc)}
+                      >
+                        Book Appointment
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+                <button className="btn-primary" onClick={() => setActiveTab("doctors")}>
+                  Browse All Doctors Directory
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Patient Reviews / Testimonials */}
+          <section className="testimonials-section">
+            <div className="container">
+              <div className="section-header">
+                <span className="section-tag">Patient Stories</span>
+                <h2 className="section-title">What Our Patients Say</h2>
+                <p className="section-subtitle">Real experiences from patients who entrusted their health to Sri Veda.</p>
+              </div>
+
+              <div className="testimonials-grid">
+                <div className="testimonial-card">
+                  <div className="rating-stars">★★★★★</div>
+                  <p className="patient-quote">
+                    "Dr. Varma and the cardiology team at Sri Veda saved my father during an emergency cardiac incident. 
+                    The speed of the emergency cath lab team and the compassionate nursing staff were exceptional."
+                  </p>
+                  <div className="patient-profile">
+                    <div className="patient-avatar">VK</div>
+                    <div>
+                      <h5 style={{ fontWeight: 700 }}>V. Krishna</h5>
+                      <span style={{ fontSize: "0.8rem", color: "var(--gray-medium)" }}>Cardiology Patient</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="testimonial-card">
+                  <div className="rating-stars">★★★★★</div>
+                  <p className="patient-quote">
+                    "We had our first baby delivered at Sri Veda under Dr. Meenakshi Iyer. The maternity suite, 
+                    cleanliness, and the pediatrician's care gave us absolute peace of mind."
+                  </p>
+                  <div className="patient-profile">
+                    <div className="patient-avatar">AR</div>
+                    <div>
+                      <h5 style={{ fontWeight: 700 }}>Aparna & Rohit</h5>
+                      <span style={{ fontSize: "0.8rem", color: "var(--gray-medium)" }}>Maternity Care</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="testimonial-card">
+                  <div className="rating-stars">★★★★★</div>
+                  <p className="patient-quote">
+                    "Underwent total knee replacement surgery by Dr. Arvind Swaminathan. Within 3 weeks, I am walking 
+                    pain-free. The physiotherapy department is top tier!"
+                  </p>
+                  <div className="patient-profile">
+                    <div className="patient-avatar">SM</div>
+                    <div>
+                      <h5 style={{ fontWeight: 700 }}>S. Madhusudhan</h5>
+                      <span style={{ fontSize: "0.8rem", color: "var(--gray-medium)" }}>Orthopedic Patient</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </React.Fragment>
+      )}
+
+      {/* 4. Specialties Tab View */}
+      {activeTab === "specialties" && (
+        <section className="specialties-section">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-tag">Clinical Departments</span>
+              <h2 className="section-title">Our Medical Specialties & Centers of Excellence</h2>
+              <p className="section-subtitle">
+                Sri Veda Multi Specialty Hospital provides multi-disciplinary clinical care across all major medical branches.
+              </p>
+            </div>
+
+            <div className="specialties-grid">
+              {DEPARTMENTS.map(dept => (
+                <div key={dept.id} className="specialty-card">
+                  <div className="specialty-icon">{dept.icon}</div>
+                  <h3 className="specialty-name">{dept.name}</h3>
+                  <p className="specialty-desc">{dept.desc}</p>
+                  
+                  <div style={{ margin: "0.75rem 0", fontSize: "0.85rem" }}>
+                    <strong style={{ color: "var(--dark)", display: "block", marginBottom: "0.35rem" }}>Key Facilities:</strong>
+                    <ul style={{ paddingLeft: "1.2rem", color: "var(--dark-muted)" }}>
+                      {dept.keyServices.map((srv, idx) => (
+                        <li key={idx} style={{ marginBottom: "0.2rem" }}>{srv}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button 
+                    className="specialty-btn" 
+                    style={{ marginTop: "auto" }}
+                    onClick={() => handleSelectSpecialtyToBook(dept.id)}
+                  >
+                    Book Doctor in {dept.name.split(" ")[0]} &rarr;
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. Doctors Directory Tab View */}
+      {activeTab === "doctors" && (
+        <section className="doctors-section">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-tag">Our Specialists</span>
+              <h2 className="section-title">Find and Book Doctors</h2>
+              <p className="section-subtitle">
+                Search our team of senior doctors, view their OPD schedules, qualifications, and consultation fees.
+              </p>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="doctors-filter-bar">
+              <div className="filter-chips">
+                <button 
+                  className={`filter-chip ${selectedDeptFilter === "all" ? "active" : ""}`}
+                  onClick={() => setSelectedDeptFilter("all")}
+                >
+                  All Specialties ({DOCTORS.length})
+                </button>
+                {DEPARTMENTS.map(dept => (
+                  <button 
+                    key={dept.id}
+                    className={`filter-chip ${selectedDeptFilter === dept.id ? "active" : ""}`}
+                    onClick={() => setSelectedDeptFilter(dept.id)}
+                  >
+                    {dept.name.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+
+              <div className="search-box">
+                <span className="search-icon">🔍</span>
+                <input 
+                  type="text" 
+                  className="search-input" 
+                  placeholder="Search doctor name or specialty..."
+                  value={doctorSearch}
+                  onChange={(e) => setDoctorSearch(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Doctors Grid */}
+            {filteredDoctors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem", background: "#fff", borderRadius: "12px" }}>
+                <h3>No doctors found matching your search.</h3>
+                <p style={{ color: "var(--gray-medium)", marginTop: "0.5rem" }}>Try searching with a different keyword or resetting filters.</p>
+                <button 
+                  className="btn-secondary" 
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => { setSelectedDeptFilter("all"); setDoctorSearch(""); }}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            ) : (
+              <div className="doctors-grid">
+                {filteredDoctors.map(doc => (
+                  <div key={doc.id} className="doctor-card">
+                    <div className="doctor-header">
+                      <div className="doctor-avatar">🩺</div>
+                      <div className="doctor-info">
+                        <h4>{doc.name}</h4>
+                        <span className="doctor-dept-badge">{doc.deptName}</span>
+                      </div>
+                    </div>
+                    <div className="doctor-meta">
+                      <div className="doctor-meta-item">🎓 {doc.degree}</div>
+                      <div className="doctor-meta-item">⏳ Experience: {doc.experience}</div>
+                      <div className="doctor-meta-item">🕒 OPD: {doc.timings}</div>
+                    </div>
+                    <div className="doctor-footer">
+                      <div className="doctor-fee">
+                        Fee: <strong>{doc.fee}</strong>
+                      </div>
+                      <button 
+                        className="btn-book-doc"
+                        onClick={() => handleSelectDoctorToBook(doc)}
+                      >
+                        Book Appointment
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 6. Book Appointment Tab View */}
+      {activeTab === "book" && (
+        <section className="booking-section">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-tag">Instant Confirmation</span>
+              <h2 className="section-title">Schedule a Doctor Appointment</h2>
+              <p className="section-subtitle">
+                Fill out the quick form below. You will receive an immediate booking confirmation token and SMS alert.
+              </p>
+            </div>
+
+            <div className="booking-wrapper">
+              <form onSubmit={handleBookingSubmit} className="booking-form">
+                {/* Patient Name */}
+                <div className="form-group">
+                  <label className="form-label">Patient Full Name *</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="e.g. Ramesh Chandra" 
+                    required 
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                  />
+                </div>
+
+                {/* Patient Phone */}
+                <div className="form-group">
+                  <label className="form-label">Mobile Number *</label>
+                  <input 
+                    type="tel" 
+                    className="form-control" 
+                    placeholder="e.g. +91 98765 43210" 
+                    required 
+                    value={patientPhone}
+                    onChange={(e) => setPatientPhone(e.target.value)}
+                  />
+                </div>
+
+                {/* Patient Age & Gender */}
+                <div className="form-group">
+                  <label className="form-label">Age & Gender</label>
+                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      placeholder="Age" 
+                      style={{ width: "80px" }}
+                      value={patientAge}
+                      onChange={(e) => setPatientAge(e.target.value)}
+                    />
+                    <select 
+                      className="form-control" 
+                      value={patientGender}
+                      onChange={(e) => setPatientGender(e.target.value)}
+                      style={{ flexGrow: 1 }}
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Email Address */}
+                <div className="form-group">
+                  <label className="form-label">Email Address (Optional)</label>
+                  <input 
+                    type="email" 
+                    className="form-control" 
+                    placeholder="e.g. ramesh@example.com"
+                    value={patientEmail}
+                    onChange={(e) => setPatientEmail(e.target.value)}
+                  />
+                </div>
+
+                {/* Department Selection */}
+                <div className="form-group">
+                  <label className="form-label">Select Medical Department *</label>
+                  <select 
+                    className="form-control"
+                    required
+                    value={bookingDept}
+                    onChange={(e) => {
+                      setBookingDept(e.target.value);
+                      const docs = DOCTORS.filter(d => d.deptId === e.target.value);
+                      if (docs.length > 0) setBookingDoctor(docs[0].name);
+                      else setBookingDoctor("");
+                    }}
+                  >
+                    <option value="">-- Choose Department --</option>
+                    {DEPARTMENTS.map(d => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Doctor Selection */}
+                <div className="form-group">
+                  <label className="form-label">Select Specialist Doctor *</label>
+                  <select 
+                    className="form-control"
+                    required
+                    value={bookingDoctor}
+                    onChange={(e) => setBookingDoctor(e.target.value)}
+                  >
+                    <option value="">-- Choose Doctor --</option>
+                    {availableDoctorsForBooking.map(d => (
+                      <option key={d.id} value={d.name}>{d.name} ({d.deptName} - {d.fee})</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date Selection */}
+                <div className="form-group">
+                  <label className="form-label">Preferred Date *</label>
+                  <input 
+                    type="date" 
+                    className="form-control"
+                    required
+                    value={bookingDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setBookingDate(e.target.value)}
+                  />
+                </div>
+
+                {/* Time Slot Selection */}
+                <div className="form-group">
+                  <label className="form-label">Preferred Time Slot *</label>
+                  <select 
+                    className="form-control"
+                    value={bookingTime}
+                    onChange={(e) => setBookingTime(e.target.value)}
+                  >
+                    <option value="10:00 AM">Morning: 10:00 AM</option>
+                    <option value="11:30 AM">Morning: 11:30 AM</option>
+                    <option value="01:00 PM">Afternoon: 01:00 PM</option>
+                    <option value="03:00 PM">Afternoon: 03:00 PM</option>
+                    <option value="05:30 PM">Evening: 05:30 PM</option>
+                    <option value="07:00 PM">Evening: 07:00 PM</option>
+                  </select>
+                </div>
+
+                {/* Symptoms / Reason */}
+                <div className="form-group full-width">
+                  <label className="form-label">Symptoms or Reason for Visit (Optional)</label>
+                  <textarea 
+                    className="form-control" 
+                    rows="3" 
+                    placeholder="Briefly describe your symptoms or reason for visit (e.g. chest discomfort, chronic headache, knee stiffness)..."
+                    value={symptoms}
+                    onChange={(e) => setSymptoms(e.target.value)}
+                  ></textarea>
+                </div>
+
+                {/* Submit CTA */}
+                <div className="form-group full-width">
+                  <button type="submit" className="btn-submit-booking">
+                    Confirm & Reserve Appointment
+                  </button>
+                  <p style={{ fontSize: "0.8rem", color: "var(--gray-medium)", textAlign: "center", marginTop: "0.75rem" }}>
+                    🔒 Your medical information is strictly confidential. No payment required until hospital arrival.
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 7. Patient Portal View */}
+      {activeTab === "portal" && (
+        <section className="portal-section">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-tag">Patient Services & Health Records</span>
+              <h2 className="section-title">Sri Veda Patient Portal</h2>
+              <p className="section-subtitle">
+                Manage your appointments, access diagnostic lab test reports, and view live hospital bed status.
+              </p>
+            </div>
+
+            {/* Subtabs */}
+            <div className="portal-nav-tabs">
+              <button 
+                className={`portal-tab ${portalSubtab === "appointments" ? "active" : ""}`}
+                onClick={() => setPortalSubtab("appointments")}
+              >
+                📅 My Appointments ({appointments.length})
+              </button>
+              <button 
+                className={`portal-tab ${portalSubtab === "reports" ? "active" : ""}`}
+                onClick={() => setPortalSubtab("reports")}
+              >
+                🔬 Lab Test Reports ({LAB_REPORTS.length})
+              </button>
+              <button 
+                className={`portal-tab ${portalSubtab === "beds" ? "active" : ""}`}
+                onClick={() => setPortalSubtab("beds")}
+              >
+                🛏️ Live Bed Occupancy Tracker
+              </button>
+            </div>
+
+            {/* Subtab 1: My Appointments */}
+            {portalSubtab === "appointments" && (
+              <div className="appointments-list">
+                {appointments.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "3rem", background: "#fff", borderRadius: "12px" }}>
+                    <h3>No appointments booked yet.</h3>
+                    <p style={{ color: "var(--gray-medium)", margin: "0.5rem 0 1.25rem" }}>
+                      Book your consultation with our experienced specialists easily.
+                    </p>
+                    <button className="btn-primary" onClick={() => setActiveTab("book")}>
+                      Book Your First Appointment
+                    </button>
+                  </div>
+                ) : (
+                  appointments.map(app => (
+                    <div key={app.id} className="appointment-card">
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
+                          <span className="app-id-badge">ID: {app.id}</span>
+                          <span className={`status-badge status-${app.status.toLowerCase()}`}>
+                            {app.status}
+                          </span>
+                        </div>
+                        <h4 className="app-patient-name">{app.patientName}</h4>
+                        <div className="app-details">
+                          👨‍⚕️ <strong>{app.doctorName}</strong> | 🏥 {app.deptName}
+                        </div>
+                        <div className="app-details" style={{ marginTop: "0.2rem" }}>
+                          📅 Scheduled: <strong>{app.date}</strong> at <strong>{app.time}</strong>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                        {app.status === "Confirmed" && (
+                          <button 
+                            className="btn-cancel"
+                            onClick={() => handleCancelAppointment(app.id)}
+                          >
+                            Cancel Appointment
+                          </button>
+                        )}
+                        <button 
+                          className="btn-secondary" 
+                          style={{ padding: "0.45rem 0.9rem", fontSize: "0.85rem" }}
+                          onClick={() => alert(`Showing receipt for ${app.id}:\nPatient: ${app.patientName}\nDoctor: ${app.doctorName}\nDate: ${app.date} at ${app.time}`)}
+                        >
+                          Print Slip
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Subtab 2: Diagnostic Lab Reports */}
+            {portalSubtab === "reports" && (
+              <div className="reports-grid">
+                {LAB_REPORTS.map(rep => (
+                  <div key={rep.id} className="report-card">
+                    <div className="report-header">
+                      <div>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--secondary)" }}>
+                          REPORT ID: {rep.id}
+                        </span>
+                        <h4 className="report-title">{rep.testName}</h4>
+                        <span style={{ fontSize: "0.85rem", color: "var(--gray-medium)" }}>
+                          Patient: {rep.patientName} • {rep.date}
+                        </span>
+                      </div>
+                      <span className={`status-badge ${rep.status === "Ready" ? "status-confirmed" : ""}`} style={{ background: rep.status === "Ready" ? "#d1fae5" : "#fef3c7", color: rep.status === "Ready" ? "#065f46" : "#b45309" }}>
+                        {rep.status}
+                      </span>
+                    </div>
+
+                    <p style={{ fontSize: "0.85rem", color: "var(--dark-muted)", marginBottom: "0.75rem" }}>
+                      {rep.doctorRemark}
+                    </p>
+
+                    <button 
+                      className="btn-view-report"
+                      onClick={() => setActiveReport(rep)}
+                    >
+                      {rep.status === "Ready" ? "📄 View Detailed Report" : "⏳ Report in Progress"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Subtab 3: Live Hospital Bed Status Tracker */}
+            {portalSubtab === "beds" && (
+              <div className="beds-container">
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+                  Real-Time Bed & Ward Occupancy Tracker
+                </h3>
+                <p style={{ fontSize: "0.875rem", color: "var(--gray-medium)", marginBottom: "2rem" }}>
+                  Updated dynamically every 15 minutes by Sri Veda Central Admissions Bureau.
+                </p>
+
+                {BED_DATA.map((b, idx) => {
+                  const percentage = Math.round((b.occupied / b.total) * 100);
+                  const available = b.total - b.occupied;
+                  return (
+                    <div key={idx} className="bed-row">
+                      <div className="bed-label">
+                        <span>{b.name}</span>
+                        <span>
+                          <strong>{available} Available</strong> ({b.occupied} / {b.total} Occupied)
+                        </span>
+                      </div>
+                      <div className="progress-track">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${percentage}%`, backgroundColor: b.color }}
+                        ></div>
+                      </div>
+                      <div style={{ textAlign: "right", fontSize: "0.75rem", color: "var(--gray-medium)", marginTop: "0.25rem" }}>
+                        Occupancy: {percentage}%
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div style={{ marginTop: "1.5rem", padding: "1rem", background: "var(--bg-soft)", borderRadius: "8px", fontSize: "0.85rem" }}>
+                  💡 <strong>Emergency Admissions:</strong> Dedicated emergency resuscitation and ICU beds are always kept reserved for critical arrivals. Call <strong>+91 40 2345 6789</strong> for urgent ambulance transfer.
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 8. Booking Success Confirmation Modal */}
+      {confirmedBooking && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="modal-close-btn" onClick={() => setConfirmedBooking(null)}>✕</button>
+            <div className="confirm-icon">✓</div>
+            <h3 style={{ fontSize: "1.5rem", fontWeight: 800, textAlign: "center", marginBottom: "0.25rem" }}>
+              Appointment Confirmed!
+            </h3>
+            <p style={{ textAlign: "center", color: "var(--gray-medium)", fontSize: "0.9rem" }}>
+              Thank you for choosing Sri Veda Multi Specialty Hospital.
+            </p>
+
+            <div className="confirm-details-box">
+              <div className="detail-line">
+                <span>Appointment Token</span>
+                <strong>{confirmedBooking.id}</strong>
+              </div>
+              <div className="detail-line">
+                <span>Patient Name</span>
+                <span>{confirmedBooking.patientName}</span>
+              </div>
+              <div className="detail-line">
+                <span>Doctor</span>
+                <strong>{confirmedBooking.doctorName}</strong>
+              </div>
+              <div className="detail-line">
+                <span>Department</span>
+                <span>{confirmedBooking.deptName}</span>
+              </div>
+              <div className="detail-line">
+                <span>Scheduled Date & Time</span>
+                <span>{confirmedBooking.date} at {confirmedBooking.time}</span>
+              </div>
+              <div className="detail-line">
+                <span>Status</span>
+                <strong style={{ color: "var(--success)" }}>Confirmed</strong>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
+              <button 
+                className="btn-primary" 
+                style={{ flex: 1, padding: "0.75rem", fontSize: "0.9rem" }}
+                onClick={() => {
+                  setConfirmedBooking(null);
+                  setActiveTab("portal");
+                  setPortalSubtab("appointments");
+                }}
+              >
+                View in Patient Portal
+              </button>
+              <button 
+                className="btn-secondary" 
+                style={{ flex: 1, padding: "0.75rem", fontSize: "0.9rem" }}
+                onClick={() => setConfirmedBooking(null)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 9. Detailed Lab Report Viewer Modal */}
+      {activeReport && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "650px" }}>
+            <button className="modal-close-btn" onClick={() => setActiveReport(null)}>✕</button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <div>
+                <span style={{ fontSize: "0.8rem", color: "var(--primary)", fontWeight: 700 }}>NABL ACCREDITED LAB</span>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>{activeReport.testName}</h3>
+                <p style={{ fontSize: "0.85rem", color: "var(--gray-medium)" }}>
+                  Patient: <strong>{activeReport.patientName}</strong> | Date: {activeReport.date} | Report ID: {activeReport.id}
+                </p>
+              </div>
+            </div>
+
+            {activeReport.findings.length > 0 ? (
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", margin: "1rem 0" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                  <thead>
+                    <tr style={{ background: "#f8fafc", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
+                      <th style={{ padding: "0.6rem 0.75rem" }}>Test Parameter</th>
+                      <th style={{ padding: "0.6rem 0.75rem" }}>Observed Value</th>
+                      <th style={{ padding: "0.6rem 0.75rem" }}>Standard Range</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeReport.findings.map((f, i) => (
+                      <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "0.6rem 0.75rem", fontWeight: 600 }}>{f.param}</td>
+                        <td style={{ padding: "0.6rem 0.75rem", color: "var(--primary-hover)", fontWeight: 700 }}>{f.val}</td>
+                        <td style={{ padding: "0.6rem 0.75rem", color: "var(--gray-medium)" }}>{f.normal}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ padding: "1.5rem", background: "var(--bg-soft)", textAlign: "center", borderRadius: "8px", margin: "1rem 0" }}>
+                ⏳ Test samples are under high-precision automated analysis. Final reports are released within 4 hours.
+              </div>
+            )}
+
+            <div style={{ background: "#f0fdf4", padding: "0.85rem", borderRadius: "6px", fontSize: "0.85rem", borderLeft: "4px solid var(--primary)" }}>
+              <strong>Chief Pathologist Remark:</strong> {activeReport.doctorRemark}
+            </div>
+
+            <button 
+              className="btn-primary" 
+              style={{ width: "100%", marginTop: "1.25rem", padding: "0.75rem" }}
+              onClick={() => {
+                alert(`Downloading official PDF copy of ${activeReport.id}...`);
+                setActiveReport(null);
+              }}
+            >
+              📥 Download Verified PDF Copy
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 10. SOS Emergency Ambulance Modal */}
+      {sosModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="modal-close-btn" onClick={() => setSosModalOpen(false)}>✕</button>
+            <div className="sos-modal-header">
+              <div className="sos-modal-icon">🚑</div>
+              <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--danger)" }}>
+                24x7 Emergency Ambulance Dispatch
+              </h3>
+              <p style={{ fontSize: "0.875rem", color: "var(--gray-medium)" }}>
+                Emergency Control Hotline: <strong>+91 40 2345 6789</strong> / <strong>108</strong>
+              </p>
+            </div>
+
+            {sosDispatched ? (
+              <div style={{ textAlign: "center", padding: "1rem" }}>
+                <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>✅</div>
+                <h4 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--success)" }}>
+                  Ambulance Dispatched!
+                </h4>
+                <div className="confirm-details-box" style={{ textAlign: "left", margin: "1rem 0" }}>
+                  <div className="detail-line">
+                    <span>Assigned Ambulance Unit</span>
+                    <strong>SV-ALS-Unit #08</strong>
+                  </div>
+                  <div className="detail-line">
+                    <span>Driver & Paramedic Contact</span>
+                    <strong>+91 98450 99881</strong>
+                  </div>
+                  <div className="detail-line">
+                    <span>Estimated Arrival Time (ETA)</span>
+                    <strong style={{ color: "var(--danger)" }}>11 Minutes</strong>
+                  </div>
+                  <div className="detail-line">
+                    <span>Pickup Address</span>
+                    <span>{sosAddress}</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: "0.85rem", color: "var(--gray-medium)" }}>
+                  Please keep your phone line free. The emergency paramedic is on the way with advanced life support equipment.
+                </p>
+                <button 
+                  className="btn-secondary" 
+                  style={{ width: "100%", marginTop: "1.25rem" }}
+                  onClick={() => setSosModalOpen(false)}
+                >
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSosSubmit}>
+                <div className="form-group" style={{ marginBottom: "1rem" }}>
+                  <label className="form-label">Patient Pickup Location / Address *</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="Enter complete house / apartment / street address..." 
+                    required 
+                    value={sosAddress}
+                    onChange={(e) => setSosAddress(e.target.value)}
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "1.25rem" }}>
+                  <label className="form-label">Contact Phone Number *</label>
+                  <input 
+                    type="tel" 
+                    className="form-control" 
+                    placeholder="Caller's direct mobile number..." 
+                    required 
+                    value={sosContact}
+                    onChange={(e) => setSosContact(e.target.value)}
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn-primary" 
+                  style={{ width: "100%", backgroundColor: "var(--danger)", padding: "0.85rem" }}
+                >
+                  🚨 Dispatch Nearest Ambulance Now
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 11. Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <span style={{ fontSize: "1.5rem" }}>⚕️</span>
+                <h3 style={{ margin: 0 }}>Sri Veda Multi Specialty Hospital</h3>
+              </div>
+              <p>
+                Committed to delivering compassionate, ethical, and high-quality healthcare 
+                with advanced surgical technologies and patient-centric clinical practices.
+              </p>
+              <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+                📍 Road No. 12, Banjara Hills, Hyderabad, Telangana 500034<br/>
+                📞 General: +91 40 2345 6700 | Emergency: +91 40 2345 6789<br/>
+                ✉️ info@srivedahospital.com
+              </div>
+            </div>
+
+            <div className="footer-col">
+              <h4>Quick Links</h4>
+              <ul className="footer-links">
+                <li><button onClick={() => setActiveTab("home")}>Home</button></li>
+                <li><button onClick={() => setActiveTab("specialties")}>Specialties & Clinics</button></li>
+                <li><button onClick={() => setActiveTab("doctors")}>Find a Specialist</button></li>
+                <li><button onClick={() => setActiveTab("book")}>Book Appointment</button></li>
+                <li><button onClick={() => setActiveTab("portal")}>Patient Portal & Reports</button></li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h4>Specialties</h4>
+              <ul className="footer-links">
+                <li><button onClick={() => handleSelectSpecialtyToBook("cardio")}>Cardiology</button></li>
+                <li><button onClick={() => handleSelectSpecialtyToBook("neuro")}>Neurology & Spine</button></li>
+                <li><button onClick={() => handleSelectSpecialtyToBook("ortho")}>Orthopedics</button></li>
+                <li><button onClick={() => handleSelectSpecialtyToBook("pediatrics")}>Pediatrics & NICU</button></li>
+                <li><button onClick={() => handleSelectSpecialtyToBook("obg")}>Obstetrics & Gynecology</button></li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h4>Hospital Hours</h4>
+              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "0.5rem" }}>
+                • <strong>Emergency & Trauma:</strong> 24 Hours / 7 Days
+              </p>
+              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "0.5rem" }}>
+                • <strong>OPD Consultations:</strong> 08:00 AM - 08:00 PM
+              </p>
+              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "0.5rem" }}>
+                • <strong>Visiting Hours:</strong> 10:00 AM - 01:00 PM & 05:00 PM - 08:00 PM
+              </p>
+              <div style={{ marginTop: "1rem" }}>
+                <button 
+                  className="sos-btn"
+                  onClick={() => { setSosModalOpen(true); setSosDispatched(false); }}
+                >
+                  🚨 Emergency Ambulance Helpline
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <span>© 2026 Sri Veda Multi Specialty Hospital. All rights reserved.</span>
+            <span>NABH & NABL Accredited Healthcare Facility</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// Mount the React Application
+ReactDOM.render(<HospitalApp />, document.getElementById("root"));
